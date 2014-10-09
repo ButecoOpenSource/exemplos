@@ -1,0 +1,17 @@
+proc Login {username server password} {
+    set prompt "(%|>|\#|\\\$) "
+ 
+    spawn /usr/bin/ssh $username@$server
+    expect {
+            -re "Are you sure you want to continue connecting (yes/no)?" {
+            exp_send "yes\r"
+            exp_continue
+            #continue to match statements within this expect {}
+        }
+ 
+    -nocase "password: " {
+            exp_send "$password\r"
+            interact
+        }
+    }
+}
