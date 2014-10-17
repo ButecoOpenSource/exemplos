@@ -1,0 +1,18 @@
+set timeout 15
+
+send 
+
+expect {
+	"a" {
+		puts "Recebido a"
+	}
+	"b" {
+		puts "Recebido b"
+	}
+	timeout {
+		puts "Estourado o tempo limite para espera"
+	}
+	eof {
+		puts "Recebido EOF do processo"
+	}
+}
