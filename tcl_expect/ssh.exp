@@ -1,6 +1,4 @@
 proc Login {username server password} {
-	set prompt "(%|>|\#|\\\$) "
-
 	spawn /usr/bin/ssh $username@$server
 	expect {
 		-re "Are you sure you want to continue connecting (yes/no)?" {
