@@ -7,12 +7,18 @@ void meChama()
 	printf("Chamado no encerramento do programa\n");
 }
 
+void meChama2()
+{
+	printf("Serei chamado prtimeiro!!\n");
+}
+
 int main(int argc, char *argv[])
 {
 	// registrar a função que irá ser chamada ao encerrar o processo
 	atexit(meChama);
+	atexit(meChama2);
 
-	printf("A função meChama irá ser chamada no encerramento "
+	printf("As funções serão chamadas no encerramento "
 			"do processo\n");
 	sleep(3);
 
