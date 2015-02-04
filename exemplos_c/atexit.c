@@ -9,7 +9,7 @@ void meChama()
 
 void meChama2()
 {
-	printf("Serei chamado prtimeiro!!\n");
+	printf("Serei chamado primeiro!!\n");
 }
 
 int main(int argc, char *argv[])
