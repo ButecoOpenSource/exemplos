@@ -75,6 +75,7 @@ int main()
 		perror("close 5");
 		return EXIT_FAILURE;
 	}
+
 	if (close(fds[1]) == -1) {
 		perror("close 6");
 		return EXIT_FAILURE;
