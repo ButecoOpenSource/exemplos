@@ -12,7 +12,7 @@ from gi.repository import Gdk
 import sqlite3
 
  
-class Main(Gtk.Window):
+class Janela(Gtk.Window):
         def __init__(self):
                 #Janela Principal
                 Gtk.Window.__init__(self, title="SCU - Sistema de Cadastro de Usuários")
@@ -153,7 +153,7 @@ def comit_dados(*args):
         connection.commit()
  
 #Inicialização da aplicação
-win = Main()
+win = Janela()
 win.connect("delete-event", Gtk.main_quit)
 win.show_all()
 Gtk.main()
