@@ -107,11 +107,11 @@ class Janela(Gtk.Window):
                 self.combo2.set_halign(Gtk.Align.START)
                 self.grid2.attach(self.combo2,1,8,1,1)
                 #Botão de gravar
-                self.comit = Gtk.Button(label="Gravar")
-                self.comit.set_halign(Gtk.Align.CENTER)
-                self.grid_total.attach(self.comit,0,2,2,2)
-                self.comit.set_size_request(100,40)
-                self.comit.connect("clicked", self.on_comit_clicked)
+                self.commit = Gtk.Button(label="Gravar")
+                self.commit.set_halign(Gtk.Align.CENTER)
+                self.grid_total.attach(self.commit,0,2,2,2)
+                self.commit.set_size_request(100,40)
+                self.commit.connect("clicked", self.on_commit_clicked)
                 #Espaçamento das grids
                 self.grid2.set_row_spacing(10)
                 self.grid1.set_row_spacing(10)
@@ -129,7 +129,7 @@ class Janela(Gtk.Window):
                 return widget.set_text(nome)
  
         #Método que ligará os dados da janela para a função de gravar em banco de dados
-        def on_comit_clicked(self, widget):
+        def on_commit_clicked(self, widget):
                 nome = self.entry_nome.get_text()
                 cpf = self.entry_cpf.get_text()
                 data_nasc = self.entry_nasc.get_text()
@@ -140,11 +140,11 @@ class Janela(Gtk.Window):
  
                 if nome != None and cpf != None and data_nasc != None \
                  and estado != None and cidade != None:
-                        return comit_dados(None,nome,cpf, tel, email, data_nasc,estado,cidade)
+                        return commit_dados(None,nome,cpf, tel, email, data_nasc,estado,cidade)
                 pass
  
  #Função para gravar no Banco
-def comit_dados(*args):
+def commit_dados(*args):
         connection = sqlite3.connect('cadastro.db')
         connection.text_factory = str
         c = connection.cursor()
