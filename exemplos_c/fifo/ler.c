@@ -10,7 +10,6 @@
 int main()
 {
 	struct stat st;
-
 	// criar fifo se nao existir
 	if (stat("meu_fifo", &st) == -1) {
 		if (mkfifo("meu_fifo", 0666) == -1) {
