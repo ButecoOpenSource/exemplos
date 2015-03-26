@@ -1,3 +1,3 @@
-import calculadora
+import moduloteste
 
-print 'Valor de 1 + 2: ' + str(calculadora.soma(1, 2))
+print 'Valor de 1 + 2: ' + str(moduloteste.soma(1, 2))

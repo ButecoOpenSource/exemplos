@@ -2,4 +2,6 @@ CC=gcc
 CFLAGS=-shared -Wall -fPIC
 
 all:
-	$(CC) calculadoramodule.c $(CFLAGS) -o calculadoramodule.so -I/usr/include/python2.7
+	$(CC) modulotestemodule.c $(CFLAGS) -o modulotestemodule.so -I/usr/include/python2.7
+clean:
+	rm -f modulotestemodule.so
