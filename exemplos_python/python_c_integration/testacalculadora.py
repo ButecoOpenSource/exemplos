@@ -1,3 +1,9 @@
 import moduloteste
 
-print 'Valor de 1 + 2: ' + str(moduloteste.soma(1, 2))
+param1 = 1
+param2 = 3
+
+try:
+	print 'Valor de ' + str(param1) + ' + ' + str(param2) + ': ' + str(moduloteste.soma(param1, param2))
+except moduloteste.erro:
+	print 'erro na lib'

@@ -1,10 +1,14 @@
 #include <Python.h>
 
+static PyObject* moduloTesteError;
+
 static PyObject *moduloteste_soma(PyObject *self, PyObject *args)
 {
 	int valorA, valorB;
-	if (!PyArg_ParseTuple(args, "ii", &valorA, &valorB))
+	if (!PyArg_ParseTuple(args, "ii", &valorA, &valorB)) {
+		PyErr_SetString(moduloTesteError, "Parametro inválido!");
 		return NULL;
+	}
 	return Py_BuildValue("i", valorA + valorB);
 }
 
@@ -16,5 +20,9 @@ static PyMethodDef MetodosModuloTest[] = {
 PyMODINIT_FUNC
 initmoduloteste(void)
 {
-	(void)Py_InitModule("moduloteste", MetodosModuloTest);
+	PyObject* init = Py_InitModule("moduloteste", MetodosModuloTest);
+	if (!init)
+		return;
+	moduloTesteError = PyErr_NewException("moduloteste.erro", NULL, NULL);
+	PyModule_AddObject(init, "erro", moduloTesteError);
 }
