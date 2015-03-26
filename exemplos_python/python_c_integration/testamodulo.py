@@ -1,5 +1,7 @@
 import moduloteste
 
+print dir(moduloteste)
+
 param1 = 1
 param2 = 3
 
