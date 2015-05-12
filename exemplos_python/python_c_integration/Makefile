@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-s -shared -Wall -fPIC
+CXXFLAGS=-shared -Wall -fPIC
 
 all:
 	$(CXX) modulotestemodule.cxx $(CXXFLAGS) -o modulotestemodule.so -I/usr/include/python2.7

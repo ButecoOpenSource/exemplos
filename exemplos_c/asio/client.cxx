@@ -1,7 +1,6 @@
 #include <iostream>
 #include <boost/asio.hpp>
 #include <string>
-#include <functional>
 
 int main(int argc, char* argv[])
 {
@@ -10,9 +9,7 @@ int main(int argc, char* argv[])
 	std::cout << "./client ip porta message" << std::endl;
         exit(1);
     }    
-
-    std::function<void(const boost::system::error_code&, std::size_t)> f = [&](const boost::system::error_code& error, std::size_t bytes) {};
-
+    
     boost::asio::io_service io_service;
     boost::asio::ip::tcp::socket socket(io_service);
     boost::asio::ip::tcp::resolver resolver(io_service);
@@ -20,7 +17,7 @@ int main(int argc, char* argv[])
     
     std::size_t _size = 1024;
     std::string msg = argv[3]; 
-    boost::asio::async_write(socket, boost::asio::buffer(msg.c_str(), _size), f);
+    boost::asio::write(socket, boost::asio::buffer(msg.c_str(), _size));
     return 0;
 }
 
