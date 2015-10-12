@@ -1,6 +1,11 @@
 import requests
 import sys
 
+try:
+    input_func = raw_input
+except:
+    input_func = input
+
 
 def menu():
     print('''
@@ -44,15 +49,15 @@ def delete_container(ipaddr, uid=None):
     if uid:
         cont = uid
     else:
-        cont = input('Insert the container UID: ')
+        cont = input_func('Insert the container UID: ')
 
     ret = requests.delete('%s/containers/%s' % (ipaddr, cont))
     return verify_error(ret, 204)
 
 
 def create_container(ipaddr):
-    image = input('Insert image:tag name: ')
-    cont_name = input('Insert container name: ')
+    image = input_func('Insert image:tag name: ')
+    cont_name = input_func('Insert container name: ')
 
     payload = {'Image': image, 'Entrypoint': 'bash'}
     ret = requests.post('%s/containers/create?name=%s' % (ipaddr, cont_name), json=payload)
@@ -78,8 +83,8 @@ def get_images(ipaddr, show=True):
 
 
 def create_image(ipaddr):
-    name = input('Insert the image name: ')
-    tag = input('Insert tag name: ')
+    name = input_func('Insert the image name: ')
+    tag = input_func('Insert tag name: ')
 
     print('Pulling image...')
 
@@ -91,7 +96,7 @@ def delete_image(ipaddr, iname=None):
     if iname:
         name = iname
     else:
-        name = input('Insert the image name to be removed: ')
+        name = input_func('Insert the image name to be removed: ')
 
     ret = requests.delete('%s/images/%s' % (ipaddr, name))
     verify_error(ret, 200)
@@ -115,25 +120,25 @@ if __name__ == '__main__':
     while True:
         menu()
 
-        opt = input('Choice: ')
+        opt = input_func('Choice: ')
 
-        if opt == 1:
+        if opt == '1':
             get_containers(ipaddr)
-        elif opt == 2:
+        elif opt == '2':
             create_container(ipaddr)
-        elif opt == 3:
+        elif opt == '3':
             delete_container(ipaddr)
-        elif opt == 4:
+        elif opt == '4':
             delete_all_containers(ipaddr)
-        elif opt == 5:
+        elif opt == '5':
             get_images(ipaddr)
-        elif opt == 6:
+        elif opt == '6':
             create_image(ipaddr)
-        elif opt == 7:
+        elif opt == '7':
             delete_image(ipaddr)
-        elif opt == 8:
+        elif opt == '8':
             delete_all_images(ipaddr)
-        elif opt == 9:
+        elif opt == '9':
             break
 
     print('Bye!')
