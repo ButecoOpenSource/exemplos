@@ -65,10 +65,10 @@ def create_container(ipaddr):
 
 
 def delete_all_containers(ipaddr):
-    lst = get_containers(False)
+    lst = get_containers(ipaddr, False)
 
     for i in lst:
-        delete_container(i['Id'])
+        delete_container(ipaddr, i['Id'])
 
 
 def get_images(ipaddr, show=True):
@@ -86,6 +86,10 @@ def create_image(ipaddr):
     name = input_func('Insert the image name: ')
     tag = input_func('Insert tag name: ')
 
+    if not name.strip() or not tag.strip():
+        print('A name and a tag needs to be informed.')
+        return
+
     print('Pulling image...')
 
     ret = requests.post('%s/images/create?fromImage=%s&tag=%s' % (ipaddr, name, tag))
@@ -96,17 +100,17 @@ def delete_image(ipaddr, iname=None):
     if iname:
         name = iname
     else:
-        name = input_func('Insert the image name to be removed: ')
+        name = input_func('Insert the image:tag name to be removed: ')
 
     ret = requests.delete('%s/images/%s' % (ipaddr, name))
     verify_error(ret, 200)
 
 
 def delete_all_images(ipaddr):
-    lst = get_images(False)
+    lst = get_images(ipaddr, False)
 
     for i in lst:
-        delete_image(i['RepoTags'][0])
+        delete_image(ipaddr, i['RepoTags'][0])
 
 
 if __name__ == '__main__':
