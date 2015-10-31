@@ -21,8 +21,7 @@ void handler(int sig)
 
 void func2()
 {
-	int *i = (int *)-1;
-	printf("%d", *i); // will trigger SIGSEGV
+	kill(getpid(), SIGSEGV); // will trigger SIGSEGV
 }
 
 void func1()
