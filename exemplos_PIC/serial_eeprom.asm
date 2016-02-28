@@ -1,0 +1,264 @@
+;*===============================================================*
+;*                   SERIAL/EEPROM PIC                           *
+;*                MODELO PIC 16F628A                             *
+;*   RESUMO:RECEBE DADO SERIAL E ARMAZENA NA EEPROM E REENVIA    *
+;*          QUANDO BOTAO FOR PRESSINADO                          *
+;*===============================================================*
+;       ARQUIVO DE DEFINICOES       
+#INCLUDE <P16F628A.INC>     ;ARQUIVO DE DEFINICAO DO PIC 16F628A
+ __CONFIG _BOREN_ON&_CP_OFF&_PWRTE_ON&_WDT_OFF&_LVP_OFF&_MCLRE_ON&_XT_OSC
+; PAGINACAO DO MEMORIA
+BANK0 MACRO
+ BCF  STATUS,RP0
+ BCF  STATUS,RP1
+ ENDM
+BANK1 MACRO  
+ BCF  STATUS,RP1           
+ BSF  STATUS,RP0                           
+ ENDM               
+BANK2 MACRO             
+ BCF  STATUS,RP0             
+ BSF  STATUS,RP1            
+ ENDM               
+BANK3 MACRO             
+ BSF  STATUS,RP0            
+ BSF  STATUS,RP1            
+ ENDM               
+;=================================================================
+; VARIAVEIS
+CBLOCK 0X20
+TEMPO0
+TEMPO1
+DATAL
+W_TEMP
+STATUS_TEMP
+RECEBIDO
+SERIAL
+ENDC
+;=================================================================
+; CONSTANTE
+MEMORIA1 EQU .0
+;=================================================================
+; ENTRADAS
+#DEFINE BOTAO PORTB,0  ;BOTAO NA PORTA 06 RB0
+;=================================================================
+; SAIDAS
+#DEFINE LED  PORTB,5   ;LED NA PORTA 11 RB5
+;=================================================================
+; INICIALIZACAO DE EEPROM
+ ORG  H'2100'+MEMORIA1 ;INICIO EEPROM
+ DE   .5               ;DADO INICIAL
+;=================================================================
+; VETOR DE RESET
+ ORG     0X00
+ GOTO    INICIO
+;=================================================================
+; INICIO DAS INTERRUPCOES
+ ORG  0X04            ;ENDERECO PARA INICIAR INTERRUPCAO
+;=================================================================
+; ROTINA DE SAIDA DE INTERRUPCAO
+ RETFIE
+;=================================================================
+; ROTINAS
+;==================================================================
+
+DELAY_50
+ MOVLW  .99       ;MOVE LITERAR PARA W
+ MOVWF  TEMPO0    ;MOVE W PARA TEMPO
+DELAY01
+ MOVLW  .167      ;MOVE LITERAR PARA W
+ MOVWF  TEMPO1    ;MOVE W PARA TEMPO1
+DELAY02
+ DECFSZ  TEMPO1,F ;DECREMENTA TEMPO1
+ GOTO  DELAY02    ;MOVE PARA DELAY02
+ DECFSZ  TEMPO0,F ;DECREMENTA TEMPO
+ GOTO  DELAY01    ;VAI PARA MARCADOR  
+ RETURN
+
+DELAY_10
+ MOVLW  .8        ;MOVE LITERAL PARA W
+ MOVWF  TEMPO0    ;MOVE W PARA F
+DELAY03
+ MOVLW  .249      ;MOVE LITERAL PARA W
+ MOVWF  TEMPO1    ;MOVE W PARA F
+DELAY04
+ NOP              ;INTERVALO
+ NOP              ;INTERVALO
+ DECFSZ   TEMPO1,F   ;DECREMENTA F
+ GOTO     DELAY04         ;VAI PARA MARCADOR
+ DECFSZ   TEMPO0,F ;DECREMENTA F
+ GOTO     DELAY03  ;VAI PARA MARCADOR
+ NOP              ;INTERVALO
+ NOP              ;INTERVALO
+ NOP              ;INTERVALO
+ RETURN           ;RETORNA
+;=================================================================
+; SUBROTINAS
+TESTA_BOTAO       ;COMANDOS DE SUBROTINA
+ CALL DELAY_50    ;DELAY DE FILTRO
+ BTFSS BOTAO      ;TESTA SE BOTAO JA FOI SOLTO
+ GOTO $-1         ;VOLTA UMA LINHA
+ CALL OBTEM_EEPROM  ;VAI PARA ROTINA DE LEITURA DE EEPROM
+ RETURN
+
+ESC_E2PROM
+ BSF  LED         ;ACENDE LED INDICADOR
+ BANK1            ;VAI PARA BANCO 1
+ MOVWF EEDATA     ;MOVE DADO A SER ENVIADO PARA EEDATA
+ BCF  INTCON,GIE  ;DESABILITA INERRUPCAO
+ BSF  EECON1,WREN ;HABILITA ESCRITA EEPROM
+ MOVLW 0x55       ;INICIALIZACAO ESCRITA
+ MOVWF EECON2
+ MOVLW 0xAA
+ MOVWF EECON2
+ BSF  EECON1,WR     ;INICIA ESCRITA
+ BCF  EECON1,WREN
+ BTFSC EECON1,WRERR ;HOUVE ERRO?
+ GOTO ESC_E2PROM+4  ;SIM, TENTA NOVAMENTE
+ BTFSC EECON1,WR    ;ACABOU ESCRITA?
+ GOTO $-3           ;NAO, AGUARDAR
+ BANK0              ;SIM, BANCO 0
+ BSF  INTCON,GIE    ;HABILITA INTERRUPCAO
+ BCF  LED;          ;APAGA LED
+ RETURN
+
+LE_E2PROM
+ BANK1
+ BSF  EECON1,RD     ;PREPARA LEITURA
+ MOVF EEDATA,W      ;COLOCA DADO EM W
+ BANK0
+ RETURN
+
+OBTEM_EEPROM
+ MOVLW MEMORIA1     ;MOVE PARA W ENDERECO DA EEPROM A SER LIDO
+ BANK1
+ MOVWF EEADR        ;MOVE PARA EEADR ENDERECO A SER LIDO
+ CALL LE_E2PROM     ;CHAMA ROTINA DE LEITURA
+ MOVWF RECEBIDO     ;MOVE DADO LIDO PARA VARIAVEL RECEBIDO
+ CALL SEND          ;ENVIA DADO PELA SERIAL
+ RETURN
+
+ESCR_VALOR_RECEBIDO
+ MOVLW MEMORIA1     ;MOVE PARA W ENDERECO DA MEMORIA
+ BANK1
+ MOVWF EEADR        ;MOVE PARA EEADR ENDERECO DA MEMORIA
+ BANK0
+ MOVF SERIAL,W      ;MOVE PARA W DADO RECEBIDO
+ CALL ESC_E2PROM    ;CHAMA ROTIINA DE ESCRITA DA EEPROM
+ BANK0
+ RETURN
+;================================================================
+; DEFINICAO DE BANCOS
+INICIO
+ BANK1
+ MOVLW B'11011011'
+ MOVWF TRISB
+ MOVLW B'11111111'
+ MOVF TRISA
+ MOVLW B'00100000'
+ MOVWF STATUS
+ MOVLW B'10000000'
+ MOVWF OPTION_REG
+ MOVLW B'00000000'
+ MOVWF INTCON
+ 
+;===============================================================
+; SETA COMUNICACAO SERIAL
+
+ MOVLW 0x19       ;0X19 = 9600BPS(0X0C=19200BPS)
+ MOVWF SPBRG      ;COFIGURA BOUD RATE  
+ MOVLW B'00100100'
+ MOVWF TXSTA      ;HABILITA TRANSMISSAO ASSINCRONA, SETA BRGH
+ BCF  STATUS,RP0   ;BANK 0
+ MOVLW B'10010000' ;HABILITA RECEPCAO ASSINCRONA
+ MOVWF RCSTA
+
+ BANK0
+;================================================================
+; PROVIDE A SETTLING TIME FOR START UP
+
+ CLRF DATAL
+ SETTLE
+ DECFSZ DATAL,F
+ GOTO SETTLE
+ MOVF RCREG,W
+ MOVF RCREG,W
+ MOVF RCREG,W
+
+;================================================================
+; INICIALIZACAO DAS VARIAVEIS
+ MOVLW B'00000100'
+ MOVWF PORTB
+ MOVLW B'00000000'
+ MOVWF PORTA
+ CALL MESSAGE
+;===============================================================
+; ROTINA PRINCIPAL
+ MAIN           ;INICIO DA ROTINA PRINCIPAL
+ BSF  LED
+ CALL RECEIVE
+ CALL SEND
+ GOTO  MAIN     ;CHAMA INICIO DA ROTINA 
+;================================================================
+ RECEIVE
+ BCF  LED
+ BTFSS BOTAO        ;TESTA BOTAO
+ CALL TESTA_BOTAO   ;SE PRESSIONADO VAI PARA ROTINA DE BOTAO
+ BTFSS PIR1,RCIF    ;VERIFICA SE POSSUI DADOS NA SERIAL
+ GOTO RECEIVE
+ MOVF RCREG,W
+ MOVWF SERIAL       ;COPIA DADO RECEBIDO
+ CALL ESCR_VALOR_RECEBIDO
+ MOVF SERIAL,W
+ RETURN
+;================================================================
+SEND
+ BSF  LED
+ MOVWF TXREG         ;MOVE PARA TXREG VALOR A SER ENVIADO
+TRANSWT
+ BANK1
+WTHERE
+ BTFSS TXSTA,TRMT    ;TESTA SE JA ENVIOU O DADO
+ GOTO WTHERE         ;SE NAO ESPERA ENVIAR
+ BANK0
+ RETURN
+;================================================================
+ERRO
+ MOVLW 'S'
+ CALL SEND
+ RETURN
+;================================================================
+MESSAGE
+ MOVLW 'T'
+ CALL SEND
+ MOVLW 'e'
+ CALL SEND
+ MOVLW 's'
+ CALL SEND
+ MOVLW 't'
+ CALL SEND
+ MOVLW 'e'
+ CALL SEND
+ MOVLW '_'
+ CALL SEND
+ MOVLW 'S'
+ CALL SEND
+ MOVLW 'e'
+ CALL SEND
+ MOVLW 'r'
+ CALL SEND
+ MOVLW 'i'
+ CALL SEND
+ MOVLW 'a'
+ CALL SEND
+ MOVLW 'l'
+ CALL SEND
+ MOVLW 0x0D ;CR
+ CALL SEND
+ MOVLW 0x0A ;LF
+ CALL SEND
+ RETURN
+;================================================================
+; FIM DE PROGRAMA
+ END
+;================================================================
