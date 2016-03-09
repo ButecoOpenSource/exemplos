@@ -53,7 +53,6 @@ def loop():
 
 def send_message(msg):
     client = mqtt.Client()
-    client.on_connect = on_connect
     # descomente esta linha caso seu servidor possua autenticação.
     # client.username_pw_set(MQTT_AUTH.user, MQTT_AUTH.pwd)
     client.connect(MQTT_ADDRESS, MQTT_PORT, MQTT_TIMEOUT)
