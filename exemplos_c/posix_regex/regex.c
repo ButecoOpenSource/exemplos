@@ -38,12 +38,14 @@ static void exec_regex(char *str, char *pat, int args)
 			if (matchptr[i].rm_so == -1)
 				break;
 
-			// create a string long enough to store the original str
+			// create a string long enough to store the original str, and set init and end offset
 			char string[strlen(str) + 1];
-			// copy the the first offset fraction of the original string
-			strcpy(string, str + matchptr[i].rm_so);
-			// end string if the end of offset returned by regexec
-			string[matchptr[i].rm_eo - matchptr[i].rm_so] = 0;
+			char *start = str + matchptr[i].rm_so;
+			size_t end = matchptr[i].rm_eo - matchptr[i].rm_so;
+
+			// copy the the string by the offsets and set the NULL byte
+			strncpy(string, start, end);
+			string[end] = '\0';
 			printf("\tGroup %d: [%u-%u]: %s\n", i, matchptr[i].rm_so, matchptr[i].rm_eo, string);
 		}
 	}
