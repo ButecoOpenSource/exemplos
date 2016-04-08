@@ -1,8 +1,8 @@
 -- Nota: O GPIO 16 não pode ser usado para I2C.
--- Pino que está conectado o SDA (GPIO 13).
-SDA = 7
--- Pino que está conectado o SCL (GPIO 12).
-SCL = 6
+-- Pino que está conectado o SDA (GPIO 12).
+SDA = 6
+-- Pino que está conectado o SCL (GPIO 13).
+SCL = 7
 
 -- Endereço I2C do display OLED.
 -- Pode ser bbtido no datashet.
